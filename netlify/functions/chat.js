@@ -1,15 +1,13 @@
 exports.handler = async function(event, context) {
-  // 1. Only allow POST requests
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+  // 1. Safety Check
+  if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
 
   try {
-    // 2. Parse the incoming message
+    // 2. Get the user's message
     if (!event.body) throw new Error("Empty Request");
     const { message } = JSON.parse(event.body);
 
-    // 3. Define the "Hood/Degen" Persona
+    // 3. The "Degen" Persona
     const SYSTEM_PROMPT = `You will be roleplaying as a satirical AI character with aggressive "hood energy" built for the Solana crypto degen community.
 
 **YOUR PERSONA:**
@@ -24,19 +22,18 @@ wagmi, ngmi, jeets, paper hands, cooked, cap/no cap, ser, frens, liquidity, bond
 **RULES:**
 1. Be concise - get to the point fast
 2. Be rude but useful
-3. No moralizing lectures
-4. If asked about the CA (Contract Address), say: "67JUwUPHAUQUqLU7Q9qJ17z9KAGfxzjgiPhXUrM5pump"`;
+3. No moralizing lectures`;
 
-    // 4. Call Anthropic (Claude) API
+    // 4. Call the NEW Model (From your screenshot)
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "x-api-key": process.env.ANTHROPIC_API_KEY, // Netlify grabs this from your settings
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        // The specific model you have access to
+        // 👇 UPDATED TO YOUR MODEL VERSION 👇
         model: "claude-sonnet-4-5-20250929", 
         max_tokens: 1024,
         temperature: 1,
@@ -47,26 +44,15 @@ wagmi, ngmi, jeets, paper hands, cooked, cap/no cap, ser, frens, liquidity, bond
 
     const data = await response.json();
 
-    // 5. Check for API Errors
+    // 5. Error Handling
     if (data.error) {
         console.error("API Error:", data.error);
-        return { 
-          statusCode: 200, 
-          body: JSON.stringify({ reply: `API ERROR: ${data.error.message}` }) 
-        };
+        return { statusCode: 200, body: JSON.stringify({ reply: `API ERROR: ${data.error.message}` }) };
     }
 
-    // 6. Send the reply back to the frontend
-    return { 
-      statusCode: 200, 
-      body: JSON.stringify({ reply: data.content[0].text }) 
-    };
+    return { statusCode: 200, body: JSON.stringify({ reply: data.content[0].text }) };
 
   } catch (error) {
-    console.error("Crash:", error);
-    return { 
-      statusCode: 500, 
-      body: JSON.stringify({ reply: `CRASH: ${error.message}` }) 
-    };
+    return { statusCode: 200, body: JSON.stringify({ reply: `CRASH: ${error.message}` }) };
   }
 };
