@@ -406,16 +406,31 @@ actionButtons.forEach(btn => {
 });
 
 function handleQuickAction(action) {
+    welcomeScreen.style.display = 'none';
+    chatInterface.style.display = 'flex';
+
     const responses = {
-        dex: "Yooo you tryna check DEX? Drop the contract address in the Token Info section and I'll pull up all the data! 🔥",
-        ca: "Contract Address talk! Just paste it in the Token Info input and hit Load! I gotchu with price, holders, all that! 💯",
-        x: "Aye for X Community stuff, check the socials for the token! Most legit projects got their X linked! 🐦",
+        token: `Yooo let's check out the token! Loading up the data now... 🚀\n\nCA: ${FEATURED_TOKEN.ca}\n\nFollow us on X: ${FEATURED_TOKEN.xLink}\n\nCheck the sidebar for live price, chart, and holders! 💯`,
+        dex: `Opening DexScreener! You can check out all the trading data there! 📊`,
         help: "I gotchu fam! Here's what I can do:\n\n• Track any wallet (Solana/ETH)\n• Show live charts for tokens\n• Display top holders\n• Real-time price updates\n• Answer your crypto questions\n\nJust paste addresses in the sidebar! 🚀"
     };
 
-    welcomeScreen.style.display = 'none';
-    chatInterface.style.display = 'flex';
-    addMessage(responses[action] || responses.help, 'assistant');
+    // Handle specific actions
+    if (action === 'token') {
+        addMessage(responses.token, 'assistant');
+        // Auto-load the featured token
+        setTimeout(() => {
+            tokenInput.value = FEATURED_TOKEN.ca;
+            loadToken();
+        }, 500);
+    } else if (action === 'dex') {
+        addMessage(responses.dex, 'assistant');
+        // Open DexScreener in new tab
+        window.open(FEATURED_TOKEN.dexScreener, '_blank');
+    } else {
+        addMessage(responses[action] || responses.help, 'assistant');
+    }
+
     messageInput.focus();
 }
 
@@ -452,6 +467,13 @@ if (sidebarToggle && sidebar) {
 // Crypto tracking state
 let currentToken = null;
 let chartData = null;
+
+// Featured token configuration
+const FEATURED_TOKEN = {
+    ca: '67JUwUPHAUQUqLU7Q9qJ17z9KAGfxzjgiPhXUrM5pump',
+    xLink: 'https://x.com/NiggaClaudeSol',
+    dexScreener: 'https://dexscreener.com/solana/67JUwUPHAUQUqLU7Q9qJ17z9KAGfxzjgiPhXUrM5pump'
+};
 
 // Wallet tracker
 const trackWalletBtn = document.getElementById('trackWalletBtn');
