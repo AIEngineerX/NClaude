@@ -188,6 +188,40 @@ sidebarToggle.addEventListener('click', () => {
     sidebar.classList.toggle('open');
 });
 
+// Utility section toggle
+const utilityToggle = document.getElementById('utilityToggle');
+const utilityContent = document.getElementById('utilityContent');
+const utilityArrow = document.querySelector('.utility-arrow');
+
+utilityToggle.addEventListener('click', () => {
+    utilityContent.classList.toggle('collapsed');
+    utilityArrow.classList.toggle('collapsed');
+});
+
+// Function to update token info
+function updateTokenInfo() {
+    // Simulate fetching top holders (replace with actual API call when available)
+    const topHoldersElement = document.getElementById('topHolders');
+
+    // Since token isn't launched yet, show placeholder
+    setTimeout(() => {
+        topHoldersElement.textContent = 'Not launched';
+    }, 1000);
+
+    // You can add actual API calls here when the token is live
+    // Example:
+    // fetch('API_ENDPOINT')
+    //   .then(res => res.json())
+    //   .then(data => {
+    //     document.getElementById('topHolders').textContent = data.topHolders;
+    //     document.getElementById('marketCap').textContent = '$' + data.marketCap;
+    //     document.getElementById('liquidity').textContent = '$' + data.liquidity;
+    //   });
+}
+
+// Update token info on page load
+updateTokenInfo();
+
 // Handle welcome input
 welcomeInput.addEventListener('input', function() {
     this.style.height = 'auto';
