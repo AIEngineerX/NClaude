@@ -435,6 +435,10 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    position: sticky;
+    top: 0;
+    background: #1a1a1a;
+    z-index: 100;
 }
 
 .logo {
@@ -457,6 +461,31 @@ body {
     font-size: 15px;
     font-weight: 500;
     color: #e8e8e8;
+}
+
+.header-links {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-link {
+    color: #e8e8e8;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(58, 58, 58, 0.5);
+    background: rgba(42, 42, 42, 0.6);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-link:hover {
+    background: rgba(35, 35, 35, 0.8);
+    border-color: rgba(74, 74, 74, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .chat-container {
