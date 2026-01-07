@@ -1511,13 +1511,34 @@ messageInput.focus();
 
 // Token Sidebar Functionality
 const tokenSidebar = document.getElementById('tokenSidebar');
-const tokenSidebarToggle = document.getElementById('tokenSidebarToggle');
+const tokenCollapseBtn = document.getElementById('tokenCollapseBtn');
+const tokenExpandBtn = document.getElementById('tokenExpandBtn');
 
-// Toggle token sidebar (mobile)
-if (tokenSidebarToggle) {
-    tokenSidebarToggle.addEventListener('click', () => {
-        tokenSidebar.classList.toggle('open');
+// Collapse sidebar
+if (tokenCollapseBtn) {
+    tokenCollapseBtn.addEventListener('click', () => {
+        tokenSidebar.classList.add('collapsed');
+        tokenExpandBtn.style.display = 'block';
+        // Save state to localStorage
+        localStorage.setItem('tokenSidebarCollapsed', 'true');
     });
+}
+
+// Expand sidebar
+if (tokenExpandBtn) {
+    tokenExpandBtn.addEventListener('click', () => {
+        tokenSidebar.classList.remove('collapsed');
+        tokenExpandBtn.style.display = 'none';
+        // Save state to localStorage
+        localStorage.setItem('tokenSidebarCollapsed', 'false');
+    });
+}
+
+// Restore sidebar state on load
+const sidebarCollapsed = localStorage.getItem('tokenSidebarCollapsed') === 'true';
+if (sidebarCollapsed && tokenSidebar) {
+    tokenSidebar.classList.add('collapsed');
+    if (tokenExpandBtn) tokenExpandBtn.style.display = 'block';
 }
 
 // Copy Contract Address function
@@ -1542,38 +1563,103 @@ function copyCA() {
     });
 }
 
-// Load token data (mock data for now - replace with real API calls)
-function loadTokenData() {
-    // Simulate loading delay
-    setTimeout(() => {
-        // Update holder stats
-        document.getElementById('totalHolders').textContent = '1,247';
-        document.getElementById('uniqueWallets').textContent = '1,189';
+// Load real token data from Solana blockchain
+async function loadTokenData() {
+    const TOKEN_ADDRESS = '67JUwUPHAUQUqLU7Q9qJ17z9KAGfxzjgiPhXUrM5pump';
 
-        // Update top holders (mock data)
-        const topHolders = [
-            { address: '9xK...pQ2m', percentage: '15.2%' },
-            { address: '7hF...mN8w', percentage: '12.8%' },
-            { address: '5jD...kL9p', percentage: '9.4%' },
-            { address: '3nW...fH7r', percentage: '7.1%' },
-            { address: '8tY...vB6s', percentage: '5.9%' }
-        ];
+    try {
+        // Use public Solana RPC endpoint
+        const RPC_ENDPOINT = 'https://api.mainnet-beta.solana.com';
+
+        // Fetch token accounts (holders)
+        const response = await fetch(RPC_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 1,
+                method: 'getProgramAccounts',
+                params: [
+                    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+                    {
+                        encoding: 'jsonParsed',
+                        filters: [
+                            {
+                                dataSize: 165
+                            },
+                            {
+                                memcmp: {
+                                    offset: 0,
+                                    bytes: TOKEN_ADDRESS
+                                }
+                            }
+                        ]
+                    }
+                ]
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.result) {
+            const holders = data.result
+                .map(account => {
+                    const parsedData = account.account.data.parsed.info;
+                    return {
+                        address: parsedData.owner,
+                        balance: parseFloat(parsedData.tokenAmount.uiAmountString || 0)
+                    };
+                })
+                .filter(holder => holder.balance > 0)
+                .sort((a, b) => b.balance - a.balance);
+
+            // Calculate total supply
+            const totalSupply = holders.reduce((sum, holder) => sum + holder.balance, 0);
+
+            // Update holder count
+            const uniqueHolders = new Set(holders.map(h => h.address)).size;
+            document.getElementById('totalHolders').textContent = holders.length.toLocaleString();
+            document.getElementById('uniqueWallets').textContent = uniqueHolders.toLocaleString();
+
+            // Get top 5 holders
+            const topHolders = holders.slice(0, 5).map(holder => ({
+                address: `${holder.address.slice(0, 4)}...${holder.address.slice(-4)}`,
+                fullAddress: holder.address,
+                percentage: ((holder.balance / totalSupply) * 100).toFixed(2) + '%'
+            }));
+
+            // Update top holders list
+            const holdersList = document.getElementById('topHoldersList');
+            holdersList.innerHTML = topHolders.map((holder, index) => `
+                <div class="token-holder-item" title="${holder.fullAddress}">
+                    <div class="token-holder-rank">${index + 1}</div>
+                    <div class="token-holder-info">
+                        <div class="token-holder-address">${holder.address}</div>
+                        <div class="token-holder-percentage">${holder.percentage}</div>
+                    </div>
+                </div>
+            `).join('');
+
+        } else {
+            throw new Error('Failed to fetch token data');
+        }
+    } catch (error) {
+        console.error('Error loading token data:', error);
+        // Fallback to showing error message
+        document.getElementById('totalHolders').textContent = 'Error';
+        document.getElementById('uniqueWallets').textContent = 'Error';
 
         const holdersList = document.getElementById('topHoldersList');
-        holdersList.innerHTML = topHolders.map((holder, index) => `
-            <div class="token-holder-item">
-                <div class="token-holder-rank">${index + 1}</div>
-                <div class="token-holder-info">
-                    <div class="token-holder-address">${holder.address}</div>
-                    <div class="token-holder-percentage">${holder.percentage}</div>
-                </div>
+        holdersList.innerHTML = `
+            <div style="padding: 16px; text-align: center; color: #666;">
+                Failed to load holder data. Please try again later.
             </div>
-        `).join('');
-    }, 1000);
+        `;
+    }
 }
 
 // Load token data on page load
 loadTokenData();
 
-// Refresh token data every 30 seconds (optional)
+// Refresh token data every 30 seconds
 setInterval(loadTokenData, 30000);
