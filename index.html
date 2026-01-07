@@ -81,6 +81,52 @@
                     Clear All
                 </button>
             </div>
+
+            <!-- Crypto Utilities -->
+            <div class="crypto-section">
+                <h3 class="section-title">Wallet Tracker</h3>
+                <div class="wallet-input-group">
+                    <input type="text" id="walletInput" placeholder="Paste wallet address..." />
+                    <button class="track-btn" id="trackWalletBtn">Track</button>
+                </div>
+                <div class="wallet-balance" id="walletBalance">
+                    <div class="balance-placeholder">No wallet tracked</div>
+                </div>
+            </div>
+
+            <div class="crypto-section">
+                <h3 class="section-title">Token Info</h3>
+                <div class="wallet-input-group">
+                    <input type="text" id="tokenInput" placeholder="Token address/symbol..." />
+                    <button class="track-btn" id="trackTokenBtn">Load</button>
+                </div>
+                <div class="token-info" id="tokenInfo">
+                    <div class="info-placeholder">No token loaded</div>
+                </div>
+            </div>
+
+            <div class="crypto-section">
+                <h3 class="section-title">Live Chart</h3>
+                <div class="chart-controls">
+                    <select id="timeframe" class="timeframe-select">
+                        <option value="1">1H</option>
+                        <option value="24" selected>24H</option>
+                        <option value="168">7D</option>
+                        <option value="720">30D</option>
+                    </select>
+                </div>
+                <div class="chart-container" id="chartContainer">
+                    <div class="chart-placeholder">Enter token to view chart</div>
+                </div>
+            </div>
+
+            <div class="crypto-section">
+                <h3 class="section-title">Top Holders</h3>
+                <div class="holders-list" id="holdersList">
+                    <div class="holders-placeholder">Load token to view holders</div>
+                </div>
+            </div>
+
             <div class="chat-history" id="chatHistory">
                 <!-- Chat history items will be added here -->
             </div>

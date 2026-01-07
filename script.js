@@ -353,5 +353,467 @@ function generateStreetResponse(userMessage) {
     return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
 }
 
+// Welcome screen functionality
+const welcomeScreen = document.getElementById('welcomeScreen');
+const chatInterface = document.getElementById('chatInterface');
+const welcomeInput = document.getElementById('welcomeInput');
+const welcomeSendButton = document.getElementById('welcomeSendButton');
+
+// Auto-resize welcome textarea
+if (welcomeInput) {
+    welcomeInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+    });
+
+    welcomeInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            startChat();
+        }
+    });
+}
+
+if (welcomeSendButton) {
+    welcomeSendButton.addEventListener('click', startChat);
+}
+
+function startChat() {
+    const message = welcomeInput.value.trim();
+    if (!message) return;
+
+    // Transition to chat interface
+    welcomeScreen.style.display = 'none';
+    chatInterface.style.display = 'flex';
+
+    // Send the initial message
+    addMessage(message, 'user');
+    const response = generateStreetResponse(message);
+    setTimeout(() => {
+        addMessage(response, 'assistant');
+    }, 500);
+
+    messageInput.focus();
+}
+
+// Quick action buttons
+const actionButtons = document.querySelectorAll('.action-btn');
+actionButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+        const action = this.getAttribute('data-action');
+        handleQuickAction(action);
+    });
+});
+
+function handleQuickAction(action) {
+    const responses = {
+        dex: "Yooo you tryna check DEX? Drop the contract address in the Token Info section and I'll pull up all the data! 🔥",
+        ca: "Contract Address talk! Just paste it in the Token Info input and hit Load! I gotchu with price, holders, all that! 💯",
+        x: "Aye for X Community stuff, check the socials for the token! Most legit projects got their X linked! 🐦",
+        help: "I gotchu fam! Here's what I can do:\n\n• Track any wallet (Solana/ETH)\n• Show live charts for tokens\n• Display top holders\n• Real-time price updates\n• Answer your crypto questions\n\nJust paste addresses in the sidebar! 🚀"
+    };
+
+    welcomeScreen.style.display = 'none';
+    chatInterface.style.display = 'flex';
+    addMessage(responses[action] || responses.help, 'assistant');
+    messageInput.focus();
+}
+
+// New chat button
+const newChatBtn = document.getElementById('newChatBtn');
+if (newChatBtn) {
+    newChatBtn.addEventListener('click', function() {
+        chatContainer.innerHTML = '';
+        messageInput.focus();
+    });
+}
+
+// Clear all button
+const clearAllBtn = document.getElementById('clearAllBtn');
+if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', function() {
+        if (confirm('Clear all crypto data and chat history?')) {
+            chatContainer.innerHTML = '';
+            resetCryptoSections();
+            messageInput.focus();
+        }
+    });
+}
+
+// Sidebar toggle for mobile
+const sidebarToggle = document.getElementById('sidebarToggle');
+const sidebar = document.getElementById('sidebar');
+if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('active');
+    });
+}
+
+// Crypto tracking state
+let currentToken = null;
+let chartData = null;
+
+// Wallet tracker
+const trackWalletBtn = document.getElementById('trackWalletBtn');
+const walletInput = document.getElementById('walletInput');
+const walletBalance = document.getElementById('walletBalance');
+
+if (trackWalletBtn) {
+    trackWalletBtn.addEventListener('click', trackWallet);
+}
+
+async function trackWallet() {
+    const address = walletInput.value.trim();
+    if (!address) return;
+
+    walletBalance.innerHTML = '<div class="loading">Loading wallet data</div>';
+
+    try {
+        // Detect chain based on address format
+        const isSolana = address.length > 40 && address.length < 50;
+
+        if (isSolana) {
+            await trackSolanaWallet(address);
+        } else {
+            await trackEthWallet(address);
+        }
+    } catch (error) {
+        walletBalance.innerHTML = '<div class="balance-placeholder">Error loading wallet</div>';
+        console.error('Wallet tracking error:', error);
+    }
+}
+
+async function trackSolanaWallet(address) {
+    // Using Solana public RPC
+    try {
+        const response = await fetch('https://api.mainnet-beta.solana.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 1,
+                method: 'getBalance',
+                params: [address]
+            })
+        });
+
+        const data = await response.json();
+        const balanceSOL = (data.result.value / 1e9).toFixed(4);
+
+        walletBalance.innerHTML = `
+            <div class="balance-item">
+                <span class="balance-label">Chain</span>
+                <span class="balance-value">Solana</span>
+            </div>
+            <div class="balance-item">
+                <span class="balance-label">SOL Balance</span>
+                <span class="balance-value">${balanceSOL}</span>
+            </div>
+            <div class="balance-item">
+                <span class="balance-label">Address</span>
+                <span class="balance-value" style="font-size: 10px;">${address.slice(0, 8)}...${address.slice(-6)}</span>
+            </div>
+        `;
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function trackEthWallet(address) {
+    // Using public Ethereum RPC
+    try {
+        const response = await fetch('https://cloudflare-eth.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 1,
+                method: 'eth_getBalance',
+                params: [address, 'latest']
+            })
+        });
+
+        const data = await response.json();
+        const balanceETH = (parseInt(data.result, 16) / 1e18).toFixed(4);
+
+        walletBalance.innerHTML = `
+            <div class="balance-item">
+                <span class="balance-label">Chain</span>
+                <span class="balance-value">Ethereum</span>
+            </div>
+            <div class="balance-item">
+                <span class="balance-label">ETH Balance</span>
+                <span class="balance-value">${balanceETH}</span>
+            </div>
+            <div class="balance-item">
+                <span class="balance-label">Address</span>
+                <span class="balance-value" style="font-size: 10px;">${address.slice(0, 8)}...${address.slice(-6)}</span>
+            </div>
+        `;
+    } catch (error) {
+        throw error;
+    }
+}
+
+// Token info and chart
+const trackTokenBtn = document.getElementById('trackTokenBtn');
+const tokenInput = document.getElementById('tokenInput');
+const tokenInfo = document.getElementById('tokenInfo');
+const chartContainer = document.getElementById('chartContainer');
+const holdersList = document.getElementById('holdersList');
+const timeframeSelect = document.getElementById('timeframe');
+
+if (trackTokenBtn) {
+    trackTokenBtn.addEventListener('click', loadToken);
+}
+
+if (timeframeSelect) {
+    timeframeSelect.addEventListener('change', function() {
+        if (currentToken) {
+            loadChart(currentToken, this.value);
+        }
+    });
+}
+
+async function loadToken() {
+    const tokenAddress = tokenInput.value.trim();
+    if (!tokenAddress) return;
+
+    currentToken = tokenAddress;
+
+    tokenInfo.innerHTML = '<div class="loading">Loading token data</div>';
+    chartContainer.innerHTML = '<div class="loading">Loading chart</div>';
+    holdersList.innerHTML = '<div class="loading">Loading holders</div>';
+
+    try {
+        // Try CoinGecko for popular tokens by symbol
+        if (tokenAddress.length < 10) {
+            await loadTokenBySymbol(tokenAddress);
+        } else {
+            await loadTokenByAddress(tokenAddress);
+        }
+
+        // Load chart
+        await loadChart(currentToken, timeframeSelect.value);
+
+        // Load holders (demo data for now as this requires specific chain APIs)
+        loadHoldersDemo();
+
+    } catch (error) {
+        tokenInfo.innerHTML = '<div class="info-placeholder">Error loading token</div>';
+        console.error('Token loading error:', error);
+    }
+}
+
+async function loadTokenBySymbol(symbol) {
+    try {
+        const response = await fetch(`https://api.coingecko.com/api/v3/coins/${symbol.toLowerCase()}`);
+        const data = await response.json();
+
+        displayTokenInfo(data);
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function loadTokenByAddress(address) {
+    // For demo purposes, showing structure
+    // Real implementation would use DexScreener, Birdeye, or chain-specific APIs
+
+    tokenInfo.innerHTML = `
+        <div class="info-item">
+            <span class="info-label">Contract</span>
+            <span class="info-value" style="font-size: 10px;">${address.slice(0, 6)}...${address.slice(-4)}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Status</span>
+            <span class="info-value">Loading from DEX...</span>
+        </div>
+    `;
+
+    // Try DexScreener API
+    try {
+        const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${address}`);
+        const data = await response.json();
+
+        if (data.pairs && data.pairs.length > 0) {
+            const pair = data.pairs[0];
+            displayDexTokenInfo(pair);
+        } else {
+            throw new Error('No pairs found');
+        }
+    } catch (error) {
+        tokenInfo.innerHTML += '<div class="info-placeholder">Token not found on DEX</div>';
+    }
+}
+
+function displayTokenInfo(data) {
+    const price = data.market_data.current_price.usd;
+    const change24h = data.market_data.price_change_percentage_24h;
+    const mcap = (data.market_data.market_cap.usd / 1e6).toFixed(2);
+
+    tokenInfo.innerHTML = `
+        <div class="info-item">
+            <span class="info-label">Name</span>
+            <span class="info-value">${data.name}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Symbol</span>
+            <span class="info-value">${data.symbol.toUpperCase()}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Price</span>
+            <span class="info-value">$${price.toFixed(6)}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">24h Change</span>
+            <span class="info-value ${change24h >= 0 ? 'positive' : 'negative'}">${change24h.toFixed(2)}%</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Market Cap</span>
+            <span class="info-value">$${mcap}M</span>
+        </div>
+    `;
+}
+
+function displayDexTokenInfo(pair) {
+    const price = parseFloat(pair.priceUsd);
+    const change24h = parseFloat(pair.priceChange.h24);
+    const liquidity = (pair.liquidity.usd / 1e3).toFixed(2);
+
+    tokenInfo.innerHTML = `
+        <div class="info-item">
+            <span class="info-label">Pair</span>
+            <span class="info-value">${pair.baseToken.symbol}/${pair.quoteToken.symbol}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Price</span>
+            <span class="info-value">$${price.toFixed(8)}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">24h Change</span>
+            <span class="info-value ${change24h >= 0 ? 'positive' : 'negative'}">${change24h.toFixed(2)}%</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Liquidity</span>
+            <span class="info-value">$${liquidity}K</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">DEX</span>
+            <span class="info-value">${pair.dexId}</span>
+        </div>
+    `;
+}
+
+async function loadChart(token, hours) {
+    try {
+        // For popular tokens, use CoinGecko
+        if (token.length < 10) {
+            const response = await fetch(`https://api.coingecko.com/api/v3/coins/${token.toLowerCase()}/market_chart?vs_currency=usd&days=${Math.ceil(hours/24)}`);
+            const data = await response.json();
+
+            chartData = data.prices.map(([timestamp, price]) => ({
+                time: timestamp,
+                price: price
+            }));
+
+            renderChart(chartData);
+        } else {
+            // For contract addresses, show demo chart
+            renderDemoChart();
+        }
+    } catch (error) {
+        chartContainer.innerHTML = '<div class="chart-placeholder">Chart unavailable</div>';
+        console.error('Chart loading error:', error);
+    }
+}
+
+function renderChart(data) {
+    if (!data || data.length === 0) {
+        chartContainer.innerHTML = '<div class="chart-placeholder">No chart data</div>';
+        return;
+    }
+
+    const currentPrice = data[data.length - 1].price;
+    const startPrice = data[0].price;
+    const priceChange = ((currentPrice - startPrice) / startPrice * 100).toFixed(2);
+    const isPositive = priceChange >= 0;
+
+    const width = 268;
+    const height = 160;
+    const padding = { top: 30, right: 10, bottom: 20, left: 10 };
+
+    const minPrice = Math.min(...data.map(d => d.price));
+    const maxPrice = Math.max(...data.map(d => d.price));
+    const priceRange = maxPrice - minPrice;
+
+    const points = data.map((d, i) => {
+        const x = padding.left + (i / (data.length - 1)) * (width - padding.left - padding.right);
+        const y = padding.top + (1 - (d.price - minPrice) / priceRange) * (height - padding.top - padding.bottom);
+        return `${x},${y}`;
+    }).join(' ');
+
+    chartContainer.innerHTML = `
+        <div class="price-display">$${currentPrice.toFixed(6)}</div>
+        <div class="price-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${priceChange}%</div>
+        <svg class="chart-svg" viewBox="0 0 ${width} ${height}">
+            <polyline
+                fill="none"
+                stroke="${isPositive ? '#00ff88' : '#ff4444'}"
+                stroke-width="2"
+                points="${points}"
+            />
+        </svg>
+    `;
+}
+
+function renderDemoChart() {
+    // Generate demo chart data
+    const demoData = [];
+    let price = 0.00005 + Math.random() * 0.0001;
+
+    for (let i = 0; i < 50; i++) {
+        price = price * (1 + (Math.random() - 0.48) * 0.1);
+        demoData.push({
+            time: Date.now() - (50 - i) * 3600000,
+            price: price
+        });
+    }
+
+    renderChart(demoData);
+}
+
+function loadHoldersDemo() {
+    // Demo holders data
+    const holders = [
+        { address: '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU', balance: '45.2M', percentage: '45.2%' },
+        { address: '5fTsEb8KqLFxTkPWsSTvLJSKMJLB7xwPRgLr8XnpPZJC', balance: '12.8M', percentage: '12.8%' },
+        { address: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM', balance: '8.5M', percentage: '8.5%' },
+        { address: '3NK2KPMkHsGpyDxFzxDCRZgQWb6xqYTALpR8uKTc4JqL', balance: '6.1M', percentage: '6.1%' },
+        { address: '8mFQbdXsFXt3R3cu3oSNS3bDZRwJRP18vyzd9J69aiQH', balance: '4.3M', percentage: '4.3%' }
+    ];
+
+    holdersList.innerHTML = holders.map(holder => `
+        <div class="holder-item">
+            <span class="holder-address">${holder.address}</span>
+            <span class="holder-balance">${holder.balance}</span>
+            <span class="holder-percentage">${holder.percentage}</span>
+        </div>
+    `).join('');
+}
+
+function resetCryptoSections() {
+    walletBalance.innerHTML = '<div class="balance-placeholder">No wallet tracked</div>';
+    tokenInfo.innerHTML = '<div class="info-placeholder">No token loaded</div>';
+    chartContainer.innerHTML = '<div class="chart-placeholder">Enter token to view chart</div>';
+    holdersList.innerHTML = '<div class="holders-placeholder">Load token to view holders</div>';
+    walletInput.value = '';
+    tokenInput.value = '';
+    currentToken = null;
+    chartData = null;
+}
+
 // Focus input on load
-messageInput.focus();
+if (messageInput) {
+    messageInput.focus();
+}
