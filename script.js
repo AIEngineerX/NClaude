@@ -206,37 +206,77 @@ async function updateTokenInfo() {
     const marketCapElement = document.getElementById('marketCap');
     const liquidityElement = document.getElementById('liquidity');
 
+    console.log('🔄 Fetching token data for:', TOKEN_ADDRESS);
+
     try {
         // Option 1: DexScreener API (Free, no API key needed)
         const dexResponse = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${TOKEN_ADDRESS}`);
+
+        if (!dexResponse.ok) {
+            throw new Error(`DexScreener API error: ${dexResponse.status}`);
+        }
+
         const dexData = await dexResponse.json();
+        console.log('📊 DexScreener data:', dexData);
+
+        let dataFound = false;
 
         if (dexData.pairs && dexData.pairs.length > 0) {
             const pair = dexData.pairs[0];
+            console.log('✅ Found pair data:', pair);
 
             // Update Market Cap
             if (pair.marketCap) {
                 marketCapElement.textContent = formatCurrency(pair.marketCap);
+                dataFound = true;
             }
 
             // Update Liquidity
             if (pair.liquidity && pair.liquidity.usd) {
                 liquidityElement.textContent = formatCurrency(pair.liquidity.usd);
+                dataFound = true;
             }
+        } else {
+            console.log('⚠️ No pairs found in DexScreener');
         }
 
         // Option 2: Solscan API for holder count
-        const solscanResponse = await fetch(`https://api.solscan.io/token/holders?token=${TOKEN_ADDRESS}&offset=0&limit=10`);
-        const solscanData = await solscanResponse.json();
+        try {
+            const solscanResponse = await fetch(`https://api.solscan.io/token/holders?token=${TOKEN_ADDRESS}&offset=0&limit=10`);
 
-        if (solscanData.total) {
-            topHoldersElement.textContent = solscanData.total.toLocaleString();
-        } else {
+            if (!solscanResponse.ok) {
+                throw new Error(`Solscan API error: ${solscanResponse.status}`);
+            }
+
+            const solscanData = await solscanResponse.json();
+            console.log('👥 Solscan data:', solscanData);
+
+            if (solscanData.total) {
+                topHoldersElement.textContent = solscanData.total.toLocaleString();
+                dataFound = true;
+            } else if (solscanData.data && solscanData.data.total) {
+                topHoldersElement.textContent = solscanData.data.total.toLocaleString();
+                dataFound = true;
+            } else {
+                console.log('⚠️ No holder data in Solscan response');
+                topHoldersElement.textContent = 'Not available';
+            }
+        } catch (solscanError) {
+            console.error('❌ Solscan error:', solscanError);
             topHoldersElement.textContent = 'Not available';
         }
 
+        if (!dataFound) {
+            console.log('ℹ️ Token not launched yet or no trading data available');
+            topHoldersElement.textContent = 'Not launched';
+            marketCapElement.textContent = 'TBA';
+            liquidityElement.textContent = 'TBA';
+        } else {
+            console.log('✅ Token data updated successfully');
+        }
+
     } catch (error) {
-        console.error('Error fetching token data:', error);
+        console.error('❌ Error fetching token data:', error);
         topHoldersElement.textContent = 'Not launched';
         marketCapElement.textContent = 'TBA';
         liquidityElement.textContent = 'TBA';
