@@ -1,4 +1,4 @@
-# Dark Claude AI 🔥
+# NIgga Claude AI 🔥
 
 A satirical AI chat interface inspired by Claude's design, but with a street-savvy personality. Dark Claude responds with slang, emojis, and attitude while maintaining the clean, minimal aesthetic of modern AI interfaces.
 
