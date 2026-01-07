@@ -199,28 +199,66 @@ utilityToggle.addEventListener('click', () => {
 });
 
 // Function to update token info
-function updateTokenInfo() {
-    // Simulate fetching top holders (replace with actual API call when available)
+async function updateTokenInfo() {
+    const TOKEN_ADDRESS = '67JUwUPHAUQUqLU7Q9qJ17z9KAGfxzjgiPhXUrM5pump';
+
     const topHoldersElement = document.getElementById('topHolders');
+    const marketCapElement = document.getElementById('marketCap');
+    const liquidityElement = document.getElementById('liquidity');
 
-    // Since token isn't launched yet, show placeholder
-    setTimeout(() => {
+    try {
+        // Option 1: DexScreener API (Free, no API key needed)
+        const dexResponse = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${TOKEN_ADDRESS}`);
+        const dexData = await dexResponse.json();
+
+        if (dexData.pairs && dexData.pairs.length > 0) {
+            const pair = dexData.pairs[0];
+
+            // Update Market Cap
+            if (pair.marketCap) {
+                marketCapElement.textContent = formatCurrency(pair.marketCap);
+            }
+
+            // Update Liquidity
+            if (pair.liquidity && pair.liquidity.usd) {
+                liquidityElement.textContent = formatCurrency(pair.liquidity.usd);
+            }
+        }
+
+        // Option 2: Solscan API for holder count
+        const solscanResponse = await fetch(`https://api.solscan.io/token/holders?token=${TOKEN_ADDRESS}&offset=0&limit=10`);
+        const solscanData = await solscanResponse.json();
+
+        if (solscanData.total) {
+            topHoldersElement.textContent = solscanData.total.toLocaleString();
+        } else {
+            topHoldersElement.textContent = 'Not available';
+        }
+
+    } catch (error) {
+        console.error('Error fetching token data:', error);
         topHoldersElement.textContent = 'Not launched';
-    }, 1000);
+        marketCapElement.textContent = 'TBA';
+        liquidityElement.textContent = 'TBA';
+    }
+}
 
-    // You can add actual API calls here when the token is live
-    // Example:
-    // fetch('API_ENDPOINT')
-    //   .then(res => res.json())
-    //   .then(data => {
-    //     document.getElementById('topHolders').textContent = data.topHolders;
-    //     document.getElementById('marketCap').textContent = '$' + data.marketCap;
-    //     document.getElementById('liquidity').textContent = '$' + data.liquidity;
-    //   });
+// Helper function to format currency
+function formatCurrency(value) {
+    if (value >= 1000000) {
+        return '$' + (value / 1000000).toFixed(2) + 'M';
+    } else if (value >= 1000) {
+        return '$' + (value / 1000).toFixed(2) + 'K';
+    } else {
+        return '$' + value.toFixed(2);
+    }
 }
 
 // Update token info on page load
 updateTokenInfo();
+
+// Refresh token data every 30 seconds
+setInterval(updateTokenInfo, 30000);
 
 // Handle welcome input
 welcomeInput.addEventListener('input', function() {
