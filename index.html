@@ -126,6 +126,111 @@
                 </div>
             </div>
         </div>
+
+        <!-- Token Info Sidebar (Right) -->
+        <div class="token-sidebar" id="tokenSidebar">
+            <div class="token-sidebar-header">
+                <h3 class="token-sidebar-title">Token Info</h3>
+                <button class="token-sidebar-toggle" id="tokenSidebarToggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="token-sidebar-content">
+                <!-- Contract Address Section -->
+                <div class="token-section">
+                    <div class="token-section-title">Contract Address</div>
+                    <div class="token-ca-box">
+                        <code class="token-ca">67JUwUPHAUQUqLU7Q9qJ17z9KAGfxzjgiPhXUrM5pump</code>
+                        <button class="token-copy-btn" onclick="copyCA()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <a href="https://pump.fun/coin/67JUwUPHAUQUqLU7Q9qJ17z9KAGfxzjgiPhXUrM5pump" target="_blank" class="token-link-btn">
+                        View on Pump.fun
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Holder Statistics -->
+                <div class="token-section">
+                    <div class="token-section-title">Holder Statistics</div>
+                    <div class="token-stat">
+                        <span class="token-stat-label">Total Holders</span>
+                        <span class="token-stat-value" id="totalHolders">Loading...</span>
+                    </div>
+                    <div class="token-stat">
+                        <span class="token-stat-label">Unique Wallets</span>
+                        <span class="token-stat-value" id="uniqueWallets">Loading...</span>
+                    </div>
+                </div>
+
+                <!-- Top Holders -->
+                <div class="token-section">
+                    <div class="token-section-title">Top Holders</div>
+                    <div class="token-holders-list" id="topHoldersList">
+                        <div class="token-holder-item">
+                            <div class="token-holder-rank">1</div>
+                            <div class="token-holder-info">
+                                <div class="token-holder-address">Loading...</div>
+                                <div class="token-holder-percentage">---%</div>
+                            </div>
+                        </div>
+                        <div class="token-holder-item">
+                            <div class="token-holder-rank">2</div>
+                            <div class="token-holder-info">
+                                <div class="token-holder-address">Loading...</div>
+                                <div class="token-holder-percentage">---%</div>
+                            </div>
+                        </div>
+                        <div class="token-holder-item">
+                            <div class="token-holder-rank">3</div>
+                            <div class="token-holder-info">
+                                <div class="token-holder-address">Loading...</div>
+                                <div class="token-holder-percentage">---%</div>
+                            </div>
+                        </div>
+                        <div class="token-holder-item">
+                            <div class="token-holder-rank">4</div>
+                            <div class="token-holder-info">
+                                <div class="token-holder-address">Loading...</div>
+                                <div class="token-holder-percentage">---%</div>
+                            </div>
+                        </div>
+                        <div class="token-holder-item">
+                            <div class="token-holder-rank">5</div>
+                            <div class="token-holder-info">
+                                <div class="token-holder-address">Loading...</div>
+                                <div class="token-holder-percentage">---%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Community Links -->
+                <div class="token-section">
+                    <div class="token-section-title">Community</div>
+                    <a href="https://x.com/i/communities/2008874511664336900" target="_blank" class="token-link-btn">
+                        X Community
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

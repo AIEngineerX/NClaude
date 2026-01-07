@@ -209,24 +209,23 @@ welcomeSendButton.addEventListener('click', () => {
 document.querySelectorAll('.action-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const action = btn.getAttribute('data-action');
-        let message = '';
-        
+
         switch(action) {
             case 'dex':
-                message = 'Show me the Dex';
+                startChat('Show me the Dex');
                 break;
             case 'ca':
-                message = 'What\'s the CA';
+                // Open pump.fun link in new tab
+                window.open('https://pump.fun/coin/67JUwUPHAUQUqLU7Q9qJ17z9KAGfxzjgiPhXUrM5pump', '_blank');
                 break;
             case 'x':
-                message = 'Take me to X Community';
+                // Open X community link in new tab
+                window.open('https://x.com/i/communities/2008874511664336900', '_blank');
                 break;
             case 'help':
-                message = 'What can you do?';
+                startChat('What can you do?');
                 break;
         }
-        
-        startChat(message);
     });
 });
 
@@ -1509,3 +1508,72 @@ function generateStreetResponse(userMessage) {
 
 // Focus input on load
 messageInput.focus();
+
+// Token Sidebar Functionality
+const tokenSidebar = document.getElementById('tokenSidebar');
+const tokenSidebarToggle = document.getElementById('tokenSidebarToggle');
+
+// Toggle token sidebar (mobile)
+if (tokenSidebarToggle) {
+    tokenSidebarToggle.addEventListener('click', () => {
+        tokenSidebar.classList.toggle('open');
+    });
+}
+
+// Copy Contract Address function
+function copyCA() {
+    const ca = '67JUwUPHAUQUqLU7Q9qJ17z9KAGfxzjgiPhXUrM5pump';
+    navigator.clipboard.writeText(ca).then(() => {
+        // Visual feedback
+        const btn = event.target.closest('.token-copy-btn');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>`;
+        btn.style.color = '#4ade80';
+
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.style.color = '';
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy address');
+    });
+}
+
+// Load token data (mock data for now - replace with real API calls)
+function loadTokenData() {
+    // Simulate loading delay
+    setTimeout(() => {
+        // Update holder stats
+        document.getElementById('totalHolders').textContent = '1,247';
+        document.getElementById('uniqueWallets').textContent = '1,189';
+
+        // Update top holders (mock data)
+        const topHolders = [
+            { address: '9xK...pQ2m', percentage: '15.2%' },
+            { address: '7hF...mN8w', percentage: '12.8%' },
+            { address: '5jD...kL9p', percentage: '9.4%' },
+            { address: '3nW...fH7r', percentage: '7.1%' },
+            { address: '8tY...vB6s', percentage: '5.9%' }
+        ];
+
+        const holdersList = document.getElementById('topHoldersList');
+        holdersList.innerHTML = topHolders.map((holder, index) => `
+            <div class="token-holder-item">
+                <div class="token-holder-rank">${index + 1}</div>
+                <div class="token-holder-info">
+                    <div class="token-holder-address">${holder.address}</div>
+                    <div class="token-holder-percentage">${holder.percentage}</div>
+                </div>
+            </div>
+        `).join('');
+    }, 1000);
+}
+
+// Load token data on page load
+loadTokenData();
+
+// Refresh token data every 30 seconds (optional)
+setInterval(loadTokenData, 30000);
