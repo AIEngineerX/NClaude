@@ -678,15 +678,21 @@ body {
     background: #4a4a4a;
 }
 
-/* Token Sidebar Styles (Right) */
+/* Token Sidebar Styles (Left) */
 .token-sidebar {
     width: 320px;
     background: linear-gradient(180deg, #171717 0%, #1a1a1a 100%);
-    border-left: 1px solid rgba(42, 42, 42, 0.8);
+    border-right: 1px solid rgba(42, 42, 42, 0.8);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: -2px 0 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.token-sidebar.collapsed {
+    margin-left: -320px;
+    width: 0;
 }
 
 .token-sidebar-header {
@@ -704,21 +710,52 @@ body {
     margin: 0;
 }
 
-.token-sidebar-toggle {
-    display: none;
+.token-collapse-btn {
     background: none;
     border: none;
     color: #666;
     cursor: pointer;
-    padding: 4px;
-    transition: color 0.2s;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 6px;
 }
 
-.token-sidebar-toggle:hover {
+.token-collapse-btn:hover {
     color: #e8e8e8;
+    background: rgba(255, 255, 255, 0.1);
 }
 
-.token-sidebar-toggle svg {
+.token-collapse-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.token-expand-btn {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+    border: 1px solid rgba(58, 58, 58, 0.5);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 8px;
+    color: #e8e8e8;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+}
+
+.token-expand-btn:hover {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    padding-right: 12px;
+}
+
+.token-expand-btn svg {
     width: 20px;
     height: 20px;
 }
@@ -936,18 +973,24 @@ body {
 
     .token-sidebar {
         position: fixed;
-        right: -320px;
+        left: -320px;
         top: 0;
         height: 100vh;
         z-index: 999;
-        transition: right 0.3s;
+        transition: left 0.3s;
+        margin-left: 0;
     }
 
-    .token-sidebar.open {
-        right: 0;
+    .token-sidebar.collapsed {
+        left: -320px;
+        margin-left: 0;
     }
 
-    .token-sidebar-toggle {
-        display: block;
+    .token-sidebar:not(.collapsed) {
+        left: 0;
+    }
+
+    .token-expand-btn {
+        display: none;
     }
 }

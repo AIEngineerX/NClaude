@@ -64,77 +64,13 @@
 
     <!-- Chat Interface (hidden initially) -->
     <div class="chat-interface" id="chatInterface" style="display: none;">
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <button class="new-chat-btn" id="newChatBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12h14"/>
-                    </svg>
-                    New Chat
-                </button>
-                <button class="clear-all-btn" id="clearAllBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    </svg>
-                    Clear All
-                </button>
-            </div>
-            <div class="chat-history" id="chatHistory">
-                <!-- Chat history items will be added here -->
-            </div>
-        </div>
-
-        <!-- Toggle sidebar button (mobile) -->
-        <button class="sidebar-toggle" id="sidebarToggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-        </button>
-
-        <!-- Main chat area -->
-        <div class="main-chat">
-            <div class="header">
-                <div class="logo">
-                    <svg viewBox="0 0 100 100" class="logo-icon">
-                        <path d="M50 10 L55 35 L50 30 L45 35 Z M50 90 L55 65 L50 70 L45 65 Z M10 50 L35 45 L30 50 L35 55 Z M90 50 L65 55 L70 50 L65 45 Z M25 25 L40 40 L35 35 L40 30 Z M75 75 L60 60 L65 65 L60 70 Z M75 25 L60 40 L65 35 L70 40 Z M25 75 L40 60 L35 65 L30 60 Z" fill="currentColor"/>
-                    </svg>
-                </div>
-                <div class="title">Nigga Claude</div>
-            </div>
-
-            <div class="chat-container" id="chatContainer">
-                <!-- Messages will be added by JavaScript -->
-            </div>
-
-            <div class="input-container">
-                <div class="input-wrapper">
-                    <textarea 
-                        id="messageInput" 
-                        placeholder="Message Nigga Claude..." 
-                        rows="1"
-                        maxlength="2000"
-                    ></textarea>
-                    <button class="send-button" id="sendButton">
-                        <svg class="send-icon" viewBox="0 0 24 24">
-                            <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Token Info Sidebar (Right) -->
+        <!-- Token Info Sidebar (Left) -->
         <div class="token-sidebar" id="tokenSidebar">
             <div class="token-sidebar-header">
                 <h3 class="token-sidebar-title">Token Info</h3>
-                <button class="token-sidebar-toggle" id="tokenSidebarToggle">
+                <button class="token-collapse-btn" id="tokenCollapseBtn" title="Collapse sidebar">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                        <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
                 </button>
             </div>
@@ -228,6 +164,76 @@
                             <line x1="10" y1="14" x2="21" y2="3"></line>
                         </svg>
                     </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expand button (when collapsed) -->
+        <button class="token-expand-btn" id="tokenExpandBtn" style="display: none;" title="Expand sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+
+        <!-- Chat History Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" id="newChatBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    New Chat
+                </button>
+                <button class="clear-all-btn" id="clearAllBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Clear All
+                </button>
+            </div>
+            <div class="chat-history" id="chatHistory">
+                <!-- Chat history items will be added here -->
+            </div>
+        </div>
+
+        <!-- Toggle sidebar button (mobile) -->
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+
+        <!-- Main chat area -->
+        <div class="main-chat">
+            <div class="header">
+                <div class="logo">
+                    <svg viewBox="0 0 100 100" class="logo-icon">
+                        <path d="M50 10 L55 35 L50 30 L45 35 Z M50 90 L55 65 L50 70 L45 65 Z M10 50 L35 45 L30 50 L35 55 Z M90 50 L65 55 L70 50 L65 45 Z M25 25 L40 40 L35 35 L40 30 Z M75 75 L60 60 L65 65 L60 70 Z M75 25 L60 40 L65 35 L70 40 Z M25 75 L40 60 L35 65 L30 60 Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="title">Nigga Claude</div>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <!-- Messages will be added by JavaScript -->
+            </div>
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="Message Nigga Claude..." 
+                        rows="1"
+                        maxlength="2000"
+                    ></textarea>
+                    <button class="send-button" id="sendButton">
+                        <svg class="send-icon" viewBox="0 0 24 24">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
